@@ -7,7 +7,8 @@ import time
 
 class RandomGeneratorType(Enum):
     UNIFORM_GENERATOR=0,
-    CUSTOM_GENERATOR=1
+    CUSTOM_GENERATOR=1,
+    NORMAL_GENERATOR=2
 
 class RandomGenerator(ABC):
     @abstractclassmethod
@@ -32,6 +33,12 @@ class CustomGenerator(RandomGenerator):
             old_value = new_value
             yield new_value
 
+class NormalGenerator(RandomGenerator):
+    @classmethod
+    def generate(cls, a=0, b=1,N=1000, delta=1):
+        for t in range(0, N, delta):
+            yield np.random.normal(a, b)
+
 class RandomGeneratorFactory:
     def getGenerator(self, type: RandomGeneratorType) -> RandomGenerator:
         match type:
@@ -39,3 +46,5 @@ class RandomGeneratorFactory:
                 return UniformGenerator
             case RandomGeneratorType.CUSTOM_GENERATOR:
                 return CustomGenerator
+            case RandomGeneratorType.NORMAL_GENERATOR:
+                return NormalGenerator

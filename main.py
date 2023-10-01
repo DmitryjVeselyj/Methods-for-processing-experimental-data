@@ -4,7 +4,7 @@ from src.model import Model
 from src.analysis import Analyzer
 from src.processing import Processor
 from matplotlib import pyplot as plt
-from src.utils.random_generator import RandomGeneratorType
+from src.utils.random_generator import RandomGeneratorType, NormalGenerator, CustomGenerator
 from src.utils.trend_functions import TrendFuncType
 import numpy as np
 
@@ -52,10 +52,38 @@ def plot_shift(model : Model):
     plt.plot(linear_inc)
     plt.show()
 
+def print_statistics(model : Model, analyzer : Analyzer):
+    linear_inc = model.trend(TrendFuncType.LINEAR, -1, 0)
+    print("Linear: ")
+    print(analyzer.statistics(linear_inc))
+
+    exp_dec = model.trend(TrendFuncType.EXPONENTIAL,  0.006, 1000)
+    print("Exponential: ")
+    print(analyzer.statistics(exp_dec))
+
+    noise_system = np.fromiter(NormalGenerator.generate(N=100000), float)
+    print("Noise Normal")
+    print(analyzer.statistics(noise_system))
+    print("Stationary: ", analyzer.stationary(noise_system, len(noise_system), 50))
+
+    noise_custom = np.fromiter(CustomGenerator.generate(N=100000), float)
+    print("Noise Custom")
+    print(analyzer.statistics(noise_custom))
+    print("Stationary: ", analyzer.stationary(noise_custom, len(noise_custom), 50))
+
+
+
+
+
+
 if __name__ == "__main__":
     model = Model()
+    analyzer = Analyzer()
     # plot_trends(model)
     # plot_picewice(model)
-    # plot_noise(model)
     # plot_shift(model)
-    # plot_spikes(model)   
+    # plot_spikes(model)  
+    # plot_noise(model)
+    print_statistics(model, analyzer)
+
+

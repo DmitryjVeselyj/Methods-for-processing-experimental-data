@@ -36,7 +36,7 @@ class Model(AbstractHandler, BaseComponent):
         return data_interval
     
     def generate_noise(self, N, R, delta=1):
-        generator = RandomGeneratorFactory().getGenerator(RandomGeneratorType.UNIFORM_GENERATOR)
+        generator = RandomGeneratorFactory().getGenerator(RandomGeneratorType.NORMAL_GENERATOR)
         noise = np.fromiter(generator.generate(N=N, delta=delta), float)
         symm_interval_noise = self._cast_to_interval(noise, R)
         return symm_interval_noise
