@@ -1,12 +1,11 @@
 from src.handler import AbstractHandler
 from src.mediator import BaseComponent
 from src.utils.random_generator import RandomGeneratorType, RandomGeneratorFactory
-from src.utils.trend_functions import TrendFuncType, TrendFuncFactory
+from src.utils.math_functions import FuncType, FuncFactory
 import numpy as np
 
 class Model(AbstractHandler, BaseComponent):
 
-#====================THIRD TASK===========================#
     def shift(self, data, N, C, N1, N2):
         if N2 > N:
             raise ValueError("N2 must be <= N")
@@ -26,8 +25,6 @@ class Model(AbstractHandler, BaseComponent):
 
         return data
 
-
-#====================SECOND TASK===========================#
     @classmethod
     def _cast_to_interval(cls, data, R, shift_constant = 0.5, multiply_constant = 2, add_constant = 0):
         data_max = np.max(data)
@@ -49,12 +46,9 @@ class Model(AbstractHandler, BaseComponent):
         return symm_interval_noise
 
 
-
-
-#====================FIRST TASK===========================#
-    def trend(self, type : TrendFuncType, a, b, N=1000, delta=1):
-        trend_func = TrendFuncFactory().getFunc(type)
-        return np.fromiter(trend_func.calculate(a, b, N, delta), float)
+    def trend(self, type : FuncType, *args, **kwargs):
+        func = FuncFactory().getFunc(type)
+        return np.fromiter(func.calculate(*args, **kwargs), float)
     
         
     def handle(self, data):
