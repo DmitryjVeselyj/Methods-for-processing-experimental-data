@@ -9,6 +9,7 @@ from src.utils.math_functions import FuncType
 from statsmodels.tsa.stattools import acf
 from statsmodels.graphics.tsaplots import plot_acf as acf_plt
 from src.utils.statistics import covariance, autocorrelation
+from src.utils.fourier_transform import RectangularWindow
 
 import numpy as np
 
@@ -151,6 +152,40 @@ def plot_ccf(model : Model, analyzer : Analyzer):
     _plot_corr_res(values, L)
 
 
+def plot_fourier(model : Model, analyzer : Analyzer):
+    for i, f0 in enumerate(range(15, 516, 100)):
+        harm = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(f0, ), dt=0.001)
+        re, im, amp = analyzer.fourier(harm, len(harm))
+        analyzer.spectr_fourier(amp, 0.001)
+
+    ai = (100, 15, 20)
+    fi = (33, 5, 170)
+    harm = model.trend(FuncType.POLY_HARM, ai=ai, fi =fi, dt=0.001)
+    re, im, amp = analyzer.fourier(harm, len(harm))
+    analyzer.spectr_fourier(amp, 0.001)
+
+def plot_fourier_window(model : Model, analyzer : Analyzer):
+    harm = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001, N = 1024)
+    for L in (24, 124, 224):
+        window = RectangularWindow(len(harm) - L)
+        re, im, amp = analyzer.fourier(harm, len(harm), window)
+        analyzer.spectr_fourier(amp, 0.001)
+
+
+    ai = (100, 15, 20)
+    fi = (33, 5, 170)
+    harm = model.trend(FuncType.POLY_HARM, ai=ai, fi =fi, dt=0.001, N = 1024)
+    for L in (24, 124, 224):
+        window = RectangularWindow(len(harm) - L)
+        re, im, amp = analyzer.fourier(harm, len(harm), window)
+        analyzer.spectr_fourier(amp, 0.001)
+    
+
+
+def plot_fourier_file(model : Model, analyzer : Analyzer, fname):
+    data = np.fromfile('./data/' + fname, dtype=np.float32)
+    re, im, amp = analyzer.fourier(data, len(data))
+    analyzer.spectr_fourier(amp, 0.005)
 
 
 if __name__ == "__main__":
@@ -165,6 +200,10 @@ if __name__ == "__main__":
     # plot_harm(model)
     # plot_hist(model, analyzer)
     # plot_acf(model, analyzer)
-    plot_ccf(model, analyzer)
+    # plot_ccf(model, analyzer)
+    # plot_fourier(model, analyzer)
+    # plot_fourier_window(model, analyzer)
+    plot_fourier_file(model, analyzer, 'pgp_dt0005.dat')
+
 
 
