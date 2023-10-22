@@ -49,8 +49,8 @@ class Model(AbstractHandler, BaseComponent):
     def trend(self, type : FuncType, *args, **kwargs):
         func = FuncFactory().getFunc(type)
         return np.fromiter(func.calculate(*args, **kwargs), float)
-    
-        
+
+
     def handle(self, data):
         pass
 

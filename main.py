@@ -6,6 +6,10 @@ from src.processing import Processor
 from matplotlib import pyplot as plt
 from src.utils.random_generator import RandomGeneratorType, NormalGenerator, CustomGenerator
 from src.utils.math_functions import FuncType
+from statsmodels.tsa.stattools import acf
+from statsmodels.graphics.tsaplots import plot_acf as acf_plt
+from src.utils.statistics import covariance, autocorrelation
+
 import numpy as np
 
 def plot_trends(model : Model):
@@ -84,6 +88,71 @@ def plot_harm(model : Model):
     plt.plot(model.trend(FuncType.POLY_HARM, ai, fi, dt=0.001))
     plt.show()
 
+
+def plot_hist(model : Model, analyzer : Analyzer):
+    M = 100
+    exp_dec = model.trend(FuncType.EXPONENTIAL, 0.006, 1000)
+    analyzer.hist(exp_dec, len(exp_dec), M)
+
+    linear_inc = model.trend(FuncType.LINEAR, -1, 0)
+    analyzer.hist(linear_inc, len(linear_inc), M)
+
+    noise_system = np.fromiter(NormalGenerator.generate(N=100000), float)
+    analyzer.hist(noise_system, len(noise_system), M)
+
+    noise_custom = np.fromiter(CustomGenerator.generate(N=100000), float)
+    analyzer.hist(noise_custom, len(noise_custom), M)
+
+    harm_15 = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001)
+    analyzer.hist(harm_15, len(harm_15), M)
+
+
+def _plot_corr_res(values, L):
+    plt.axhline(0, linewidth=2)
+    plt.vlines(L, 0, values)
+    plt.scatter(L, values)
+    plt.show()
+
+
+def plot_acf(model : Model, analyzer : Analyzer):
+    noise_system = np.fromiter(NormalGenerator.generate(N=1000), float)
+    L = range(40)
+    values = [analyzer.acf(noise_system, len(noise_system), l, calc_cov=False) for l in L]
+    _plot_corr_res(values, L)
+    
+    noise_custom = np.fromiter(CustomGenerator.generate(N=1000), float)
+    L = range(40)
+    values = [analyzer.acf(noise_custom, len(noise_custom), l, calc_cov=False) for l in L]
+    _plot_corr_res(values, L)
+
+    harm_15 = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001)
+    L = range(40)
+    values = [analyzer.acf(harm_15, len(harm_15), l, calc_cov=False) for l in L]
+    _plot_corr_res(values, L)
+
+def plot_ccf(model : Model, analyzer : Analyzer):
+    noise_system_x = np.fromiter(NormalGenerator.generate(N=1000), float)
+    noise_system_y = np.fromiter(NormalGenerator.generate(N=1000), float)
+    L = range(40)
+    values = [analyzer.ccf(noise_system_x, noise_system_y, l) for l in L]
+    _plot_corr_res(values, L)
+
+    noise_custom_x = np.fromiter(CustomGenerator.generate(N=1000), float)
+    noise_custom_y = np.fromiter(CustomGenerator.generate(N=1000), float)
+    L = range(40)
+    values = [analyzer.ccf(noise_custom_x, noise_custom_y, l) for l in L]
+    _plot_corr_res(values, L)
+
+
+    harm_15 = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001)
+    harm_516 = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(516, ), dt=0.001)
+    L = range(40)
+    values = [analyzer.ccf(harm_15, harm_516, l) for l in L]
+    _plot_corr_res(values, L)
+
+
+
+
 if __name__ == "__main__":
     model = Model()
     analyzer = Analyzer()
@@ -93,6 +162,9 @@ if __name__ == "__main__":
     # plot_spikes(model)  
     # plot_noise(model)
     # print_statistics(model, analyzer)
-    plot_harm(model)
+    # plot_harm(model)
+    # plot_hist(model, analyzer)
+    # plot_acf(model, analyzer)
+    plot_ccf(model, analyzer)
 
 

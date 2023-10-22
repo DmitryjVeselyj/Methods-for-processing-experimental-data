@@ -44,3 +44,14 @@ def mean_square(data):
 
 def mean_squared_error(data):
     return math.sqrt(mean_square(data))
+
+
+def covariance(x, y, L=0):
+    assert len(x) == len(y)
+    x_mean = mean(x)
+    y_mean = mean(y)
+    N = len(x)
+    return 1 / N * sum((x[i] - x_mean)*(y[i + L] - y_mean) for i in range(N - L))
+
+def autocorrelation(data, L):
+    return covariance(data, data, L) / moment(data, 2)
