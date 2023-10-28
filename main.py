@@ -6,18 +6,15 @@ from src.processing import Processor
 from matplotlib import pyplot as plt
 from src.utils.random_generator import RandomGeneratorType, NormalGenerator, CustomGenerator
 from src.utils.math_functions import FuncType
-from statsmodels.tsa.stattools import acf
-from statsmodels.graphics.tsaplots import plot_acf as acf_plt
-from src.utils.statistics import covariance, autocorrelation
 from src.utils.fourier_transform import RectangularWindow
 
 import numpy as np
 
-def plot_trends(model : Model):
-    linear_inc = model.trend(FuncType.LINEAR, -1, 0)
-    linear_dec = model.trend(FuncType.LINEAR, 1, 0)
-    exp_inc = model.trend(FuncType.EXPONENTIAL, -0.007, 1)
-    exp_dec = model.trend(FuncType.EXPONENTIAL, 0.006, 1000)
+def plot_getFuncDatas(model : Model):
+    linear_inc = model.getFuncData(FuncType.LINEAR, -1, 0)
+    linear_dec = model.getFuncData(FuncType.LINEAR, 1, 0)
+    exp_inc = model.getFuncData(FuncType.EXPONENTIAL, -0.007, 1)
+    exp_dec = model.getFuncData(FuncType.EXPONENTIAL, 0.006, 1000)
 
     fig, ax = plt.subplots(2, 2)
     ax[0, 0].plot(linear_inc)
@@ -29,9 +26,9 @@ def plot_trends(model : Model):
 
 
 def plot_picewice(model: Model):
-    linear_inc = model.trend(FuncType.LINEAR, -1, 0)
-    linear_dec = model.trend(FuncType.LINEAR, 1, 1000)
-    exp_dec = model.trend(FuncType.EXPONENTIAL, 0.006, 1000)
+    linear_inc = model.getFuncData(FuncType.LINEAR, -1, 0)
+    linear_dec = model.getFuncData(FuncType.LINEAR, 1, 1000)
+    exp_dec = model.getFuncData(FuncType.EXPONENTIAL, 0.006, 1000)
 
     plt.plot(np.concatenate((exp_dec, linear_inc, linear_dec), axis=None))
     plt.show()
@@ -52,17 +49,17 @@ def plot_spikes(model : Model):
     plt.show()
 
 def plot_shift(model : Model):
-    linear_inc = model.trend(FuncType.LINEAR, -1, 0)
+    linear_inc = model.getFuncData(FuncType.LINEAR, -1, 0)
     model.shift(linear_inc, len(linear_inc), 500, 0, 300)
     plt.plot(linear_inc)
     plt.show()
 
 def print_statistics(model : Model, analyzer : Analyzer):
-    linear_inc = model.trend(FuncType.LINEAR, -1, 0)
+    linear_inc = model.getFuncData(FuncType.LINEAR, -1, 0)
     print("Linear: ")
     print(analyzer.statistics(linear_inc))
 
-    exp_dec = model.trend(FuncType.EXPONENTIAL,  0.006, 1000)
+    exp_dec = model.getFuncData(FuncType.EXPONENTIAL,  0.006, 1000)
     print("Exponential: ")
     print(analyzer.statistics(exp_dec))
 
@@ -80,22 +77,22 @@ def print_statistics(model : Model, analyzer : Analyzer):
 def plot_harm(model : Model):
     fig, ax = plt.subplots(6)
     for i, f0 in enumerate(range(15, 516, 100)):
-        ax[i].plot(model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(f0, ), dt=0.001))
+        ax[i].plot(model.getFuncData(FuncType.POLY_HARM, ai=(100, ), fi =(f0, ), dt=0.001))
 
     plt.show()    
     
     ai = (100, 15, 20)
     fi = (33, 5, 170)
-    plt.plot(model.trend(FuncType.POLY_HARM, ai, fi, dt=0.001))
+    plt.plot(model.getFuncData(FuncType.POLY_HARM, ai, fi, dt=0.001))
     plt.show()
 
 
 def plot_hist(model : Model, analyzer : Analyzer):
     M = 100
-    exp_dec = model.trend(FuncType.EXPONENTIAL, 0.006, 1000)
+    exp_dec = model.getFuncData(FuncType.EXPONENTIAL, 0.006, 1000)
     analyzer.hist(exp_dec, len(exp_dec), M)
 
-    linear_inc = model.trend(FuncType.LINEAR, -1, 0)
+    linear_inc = model.getFuncData(FuncType.LINEAR, -1, 0)
     analyzer.hist(linear_inc, len(linear_inc), M)
 
     noise_system = np.fromiter(NormalGenerator.generate(N=100000), float)
@@ -104,7 +101,7 @@ def plot_hist(model : Model, analyzer : Analyzer):
     noise_custom = np.fromiter(CustomGenerator.generate(N=100000), float)
     analyzer.hist(noise_custom, len(noise_custom), M)
 
-    harm_15 = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001)
+    harm_15 = model.getFuncData(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001)
     analyzer.hist(harm_15, len(harm_15), M)
 
 
@@ -126,7 +123,7 @@ def plot_acf(model : Model, analyzer : Analyzer):
     values = [analyzer.acf(noise_custom, len(noise_custom), l, calc_cov=False) for l in L]
     _plot_corr_res(values, L)
 
-    harm_15 = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001)
+    harm_15 = model.getFuncData(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001)
     L = range(40)
     values = [analyzer.acf(harm_15, len(harm_15), l, calc_cov=False) for l in L]
     _plot_corr_res(values, L)
@@ -145,8 +142,8 @@ def plot_ccf(model : Model, analyzer : Analyzer):
     _plot_corr_res(values, L)
 
 
-    harm_15 = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001)
-    harm_516 = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(516, ), dt=0.001)
+    harm_15 = model.getFuncData(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001)
+    harm_516 = model.getFuncData(FuncType.POLY_HARM, ai=(100, ), fi =(516, ), dt=0.001)
     L = range(40)
     values = [analyzer.ccf(harm_15, harm_516, l) for l in L]
     _plot_corr_res(values, L)
@@ -154,18 +151,18 @@ def plot_ccf(model : Model, analyzer : Analyzer):
 
 def plot_fourier(model : Model, analyzer : Analyzer):
     for i, f0 in enumerate(range(15, 516, 100)):
-        harm = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(f0, ), dt=0.001)
+        harm = model.getFuncData(FuncType.POLY_HARM, ai=(100, ), fi =(f0, ), dt=0.001)
         re, im, amp = analyzer.fourier(harm, len(harm))
         analyzer.spectr_fourier(amp, 0.001)
 
     ai = (100, 15, 20)
     fi = (33, 5, 170)
-    harm = model.trend(FuncType.POLY_HARM, ai=ai, fi =fi, dt=0.001)
+    harm = model.getFuncData(FuncType.POLY_HARM, ai=ai, fi =fi, dt=0.001)
     re, im, amp = analyzer.fourier(harm, len(harm))
     analyzer.spectr_fourier(amp, 0.001)
 
 def plot_fourier_window(model : Model, analyzer : Analyzer):
-    harm = model.trend(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001, N = 1024)
+    harm = model.getFuncData(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001, N = 1024)
     for L in (24, 124, 224):
         window = RectangularWindow(len(harm) - L)
         re, im, amp = analyzer.fourier(harm, len(harm), window)
@@ -174,7 +171,7 @@ def plot_fourier_window(model : Model, analyzer : Analyzer):
 
     ai = (100, 15, 20)
     fi = (33, 5, 170)
-    harm = model.trend(FuncType.POLY_HARM, ai=ai, fi =fi, dt=0.001, N = 1024)
+    harm = model.getFuncData(FuncType.POLY_HARM, ai=ai, fi =fi, dt=0.001, N = 1024)
     for L in (24, 124, 224):
         window = RectangularWindow(len(harm) - L)
         re, im, amp = analyzer.fourier(harm, len(harm), window)
@@ -187,11 +184,26 @@ def plot_fourier_file(model : Model, analyzer : Analyzer, fname):
     re, im, amp = analyzer.fourier(data, len(data))
     analyzer.spectr_fourier(amp, 0.005)
 
+def plot_add_multiple(model : Model, analyzer : Analyzer):
+    x1_1 = model.getFuncData(FuncType.LINEAR, a=-0.3, b = 20)
+    x1_2 = model.getFuncData(FuncType.POLY_HARM, ai=(5, ), fi=(50, ), dt=0.001)
+
+    plt.plot(model.addArrays(x1_1, x1_2))
+    plt.show()
+    plt.plot(model.multArrays(x1_1, x1_2))
+    plt.show()
+  
+    x2_1 = model.getFuncData(FuncType.EXPONENTIAL, a=-0.05, b=10,N=100)
+    x2_2 = model.generate_noise(N=100, R=10)
+    plt.plot(model.addArrays(x2_1, x2_2))
+    plt.show()
+    plt.plot(model.multArrays(x2_1, x2_2))
+    plt.show()
 
 if __name__ == "__main__":
     model = Model()
     analyzer = Analyzer()
-    # plot_trends(model)
+    # plot_getFuncDatas(model)
     # plot_picewice(model)
     # plot_shift(model)
     # plot_spikes(model)  
@@ -203,7 +215,7 @@ if __name__ == "__main__":
     # plot_ccf(model, analyzer)
     # plot_fourier(model, analyzer)
     # plot_fourier_window(model, analyzer)
-    plot_fourier_file(model, analyzer, 'pgp_dt0005.dat')
-
+    # plot_fourier_file(model, analyzer, 'pgp_dt0005.dat')
+    plot_add_multiple(model, analyzer)
 
 

@@ -23,7 +23,7 @@ class LinearFunc(AbsctractFunc):
 
     @classmethod
     def calculate(cls, a, b, N=1000, delta=1, *args, **kwargs):
-        for t in range(0, N, delta):
+        for t in np.arange(0, N, delta):
             yield cls._linear_func(a, b, t)
 
 
@@ -34,7 +34,7 @@ class ExponentialFunc(AbsctractFunc):
 
     @classmethod
     def calculate(cls, a, b, N=1000, delta=1, *args, **kwargs):
-        for t in range(0, N, delta):
+        for t in np.arange(0, N, delta):
             yield cls._exponential_func(a, b, t)
 
 
@@ -63,7 +63,7 @@ class PolyHarmFunc(AbsctractFunc):
 
     @classmethod
     def calculate(cls, ai : tuple, fi : tuple, dt, N = 1000, delta = 1, *args, **kwargs):
-        for t in range(0, N, delta):
+        for t in np.arange(0, N, delta):
             yield cls._poly_harm_func(ai, fi, dt, t)
 
 class FuncFactory:

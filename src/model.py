@@ -2,6 +2,7 @@ from src.handler import AbstractHandler
 from src.mediator import BaseComponent
 from src.utils.random_generator import RandomGeneratorType, RandomGeneratorFactory
 from src.utils.math_functions import FuncType, FuncFactory
+from functools import reduce
 import numpy as np
 
 class Model(AbstractHandler, BaseComponent):
@@ -45,12 +46,17 @@ class Model(AbstractHandler, BaseComponent):
         symm_interval_noise = self._cast_to_interval(noise, R)
         return symm_interval_noise
 
-
-    def trend(self, type : FuncType, *args, **kwargs):
-        func = FuncFactory().getFunc(type)
+    # TODO return func object
+    def getFuncData(self, type : FuncType, *args, **kwargs):
+        func = FuncFactory().getFunc(type) 
         return np.fromiter(func.calculate(*args, **kwargs), float)
 
 
     def handle(self, data):
         pass
-
+    
+    def addArrays(self, *args):
+        return reduce(np.add, args)
+    
+    def multArrays(self, *args):
+        return reduce(np.multiply, args)
