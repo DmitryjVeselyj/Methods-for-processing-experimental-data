@@ -4,7 +4,7 @@ from src.model import Model
 from src.analysis import Analyzer
 from src.processing import Processor
 from matplotlib import pyplot as plt
-from src.utils.random_generator import RandomGeneratorType, NormalGenerator, CustomGenerator
+from src.utils.random_generator import RandomGeneratorType, NormalGenerator, CustomGenerator, UniformGenerator
 from src.utils.math_functions import FuncType
 from src.utils.fourier_transform import RectangularWindow
 
@@ -124,7 +124,7 @@ def plot_acf(model : Model, analyzer : Analyzer):
     _plot_corr_res(values, L)
 
     harm_15 = model.getFuncData(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001)
-    L = range(40)
+    L = range(1000)
     values = [analyzer.acf(harm_15, len(harm_15), l, calc_cov=False) for l in L]
     _plot_corr_res(values, L)
 
@@ -144,7 +144,7 @@ def plot_ccf(model : Model, analyzer : Analyzer):
 
     harm_15 = model.getFuncData(FuncType.POLY_HARM, ai=(100, ), fi =(15, ), dt=0.001)
     harm_516 = model.getFuncData(FuncType.POLY_HARM, ai=(100, ), fi =(516, ), dt=0.001)
-    L = range(40)
+    L = range(1000)
     values = [analyzer.ccf(harm_15, harm_516, l) for l in L]
     _plot_corr_res(values, L)
 
@@ -200,9 +200,37 @@ def plot_add_multiple(model : Model, analyzer : Analyzer):
     plt.plot(model.multArrays(x2_1, x2_2))
     plt.show()
 
+
+def plot_anti_evth(model : Model, processor : Processor):
+    data = model.getFuncData(FuncType.LINEAR, a = 0, b = 3)
+    data += np.fromiter(CustomGenerator.generate(N=1000), float)
+
+    fig, ax = plt.subplots(2)
+    ax[0].plot(data)
+    ax[1].plot(processor.antiShift(data))
+    plt.show()
+
+
+    data_noise_spikes = np.fromiter(UniformGenerator.generate(N=1000), float)
+    data_noise_spikes = model.spikes(1000, 10, 0, 4, RandomGeneratorType.UNIFORM_GENERATOR, data_noise_spikes)
+
+    data_harm_spikes = model.getFuncData(FuncType.POLY_HARM, ai=(8, ), fi=(50, ), dt=0.001)
+    data_harm_spikes = model.spikes(1000, 10, 20, 20, RandomGeneratorType.UNIFORM_GENERATOR, data_harm_spikes)
+
+    fig, ax = plt.subplots(2, 2)
+    ax[0, 0].plot(data_noise_spikes)
+    ax[0, 1].plot(processor.antiSpike(data_noise_spikes, len(data_noise_spikes), 1))
+
+    ax[1, 0].plot(data_harm_spikes)
+    ax[1, 1].plot(processor.antiSpike(data_harm_spikes, len(data_harm_spikes), 20))
+
+    plt.show()
+
+
 if __name__ == "__main__":
     model = Model()
     analyzer = Analyzer()
+    processor = Processor()
     # plot_getFuncDatas(model)
     # plot_picewice(model)
     # plot_shift(model)
@@ -216,6 +244,6 @@ if __name__ == "__main__":
     # plot_fourier(model, analyzer)
     # plot_fourier_window(model, analyzer)
     # plot_fourier_file(model, analyzer, 'pgp_dt0005.dat')
-    plot_add_multiple(model, analyzer)
-
+    # plot_add_multiple(model, analyzer)
+    plot_anti_evth(model, processor)
 

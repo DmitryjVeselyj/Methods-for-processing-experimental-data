@@ -13,9 +13,10 @@ class Model(AbstractHandler, BaseComponent):
         data[N1:N2]+=C
         
 
-    def spikes(self, N, M, R, Rs, generatorType : RandomGeneratorType):
+    def spikes(self, N, M, R, Rs, generatorType : RandomGeneratorType, data = None):
         generator = RandomGeneratorFactory().getGenerator(generatorType)
-        data = np.zeros(N)
+        if data is None:
+            data = np.zeros(N)
         positions = np.fromiter(generator.generate(a=0, b=N, N=M), int)
 
         positive_spikes_len = M // 2
