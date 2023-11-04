@@ -203,7 +203,7 @@ def plot_add_multiple(model : Model, analyzer : Analyzer):
 
 def plot_anti_evth(model : Model, processor : Processor):
     data = model.getFuncData(FuncType.LINEAR, a = 0, b = 3)
-    data += np.fromiter(CustomGenerator.generate(N=1000), float)
+    data = model.addArrays(data, np.fromiter(CustomGenerator.generate(N=1000), float))
 
     fig, ax = plt.subplots(2)
     ax[0].plot(data)
@@ -213,6 +213,7 @@ def plot_anti_evth(model : Model, processor : Processor):
 
     data_noise_spikes = np.fromiter(UniformGenerator.generate(N=1000), float)
     data_noise_spikes = model.spikes(1000, 10, 0, 4, RandomGeneratorType.UNIFORM_GENERATOR, data_noise_spikes)
+
 
     data_harm_spikes = model.getFuncData(FuncType.POLY_HARM, ai=(8, ), fi=(50, ), dt=0.001)
     data_harm_spikes = model.spikes(1000, 10, 20, 20, RandomGeneratorType.UNIFORM_GENERATOR, data_harm_spikes)
