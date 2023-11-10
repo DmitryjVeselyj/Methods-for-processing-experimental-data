@@ -18,6 +18,14 @@ class Processor(AbstractHandler, BaseComponent):
         outdata[N-1] = data[N-1]
         return outdata
 
+    def antiTrendLinear(self, data, N):
+        return [data[i+1] - data[i] for i in range(N - 1)]
+    
+    def antiTrendNonLinear(self, data, N, W):
+        return [1 / W * sum(data[n:n+W]) for n in range(N - W)]
+
+    def antiNoise(self, data: list, N, M):
+        return [1 / M * sum(data[:, i] )for i in range(N)]
 
     def handle(self, data):
         pass

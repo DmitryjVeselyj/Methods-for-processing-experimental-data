@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt
 from src.utils.random_generator import RandomGeneratorType, NormalGenerator, CustomGenerator, UniformGenerator
 from src.utils.math_functions import FuncType
 from src.utils.fourier_transform import RectangularWindow
+from src.utils.statistics import std, var
 
 import numpy as np
 
@@ -217,7 +218,7 @@ def plot_anti_evth(model : Model, processor : Processor):
 
     data_harm_spikes = model.getFuncData(FuncType.POLY_HARM, ai=(8, ), fi=(50, ), dt=0.001)
     data_harm_spikes = model.spikes(1000, 10, 20, 20, RandomGeneratorType.UNIFORM_GENERATOR, data_harm_spikes)
-
+ 
     fig, ax = plt.subplots(2, 2)
     ax[0, 0].plot(data_noise_spikes)
     ax[0, 1].plot(processor.antiSpike(data_noise_spikes, len(data_noise_spikes), 1))
@@ -227,6 +228,49 @@ def plot_anti_evth(model : Model, processor : Processor):
 
     plt.show()
 
+def plot_another_anti(model : Model, processor : Processor):
+    data_lin = model.getFuncData(FuncType.LINEAR, a=-0.3, b = 20)
+    data_harm = model.getFuncData(FuncType.POLY_HARM, ai=(10, ), fi=(5, ), dt=0.001)
+    data = model.addArrays(data_lin, data_harm)
+
+    fig, ax = plt.subplots(2)
+    ax[0].plot(data)
+    ax[1].plot(processor.antiTrendLinear(data, len(data)))
+    plt.show()
+
+
+    data_nonlin = model.getFuncData(FuncType.EXPONENTIAL, 0.006, 1000)
+    ai = (100, 15, 20)
+    fi = (33, 5, 170)
+    data_polyharm = model.getFuncData(FuncType.POLY_HARM, ai=ai, fi =fi, dt=0.001, N = 1000)
+    data = model.addArrays(data_nonlin, data_polyharm)
+    
+    fig, ax = plt.subplots(2)
+    ax[0].plot(data)
+    ax[1].plot(processor.antiTrendNonLinear(data, len(data), 10))
+    plt.show()
+
+    fig, ax = plt.subplots(4)
+    for i, M in enumerate([1, 10, 100, 10000]):
+        data_noise = np.array([np.fromiter(NormalGenerator.generate(b=2, N=1000), float) for _ in range(M)])
+        anti_data_noise = processor.antiNoise(data_noise, len(data_noise[0]), M)
+        ax[i].plot(anti_data_noise)
+        ax[i].title.set_text(str(M) + ', ' + str(std(anti_data_noise)))
+    plt.show()
+    
+    # VAR = D( [X1 + X2 + X3 + X4] / N) = 1 / n**2 * n * D(X)
+    # STD  = 1/ sqrt(N) * std(D)
+    plt.plot([1 / np.sqrt(M) for M in range(1,1000, 10)])
+    plt.show()
+
+    d_noise = list(model.generate_noise(1000, 30))
+    data_harm = model.getFuncData(FuncType.POLY_HARM, ai=(10, ), fi=(5, ), dt=0.001)
+    data = model.addArrays(d_noise, data_harm)
+
+    fig, ax = plt.subplots(2)
+    ax[0].plot(data)
+    ax[1].plot(processor.antiTrendLinear(data, len(data)))
+    plt.show()
 
 if __name__ == "__main__":
     model = Model()
@@ -236,7 +280,7 @@ if __name__ == "__main__":
     # plot_picewice(model)
     # plot_shift(model)
     # plot_spikes(model)  
-    # plot_noise(model)
+    # plot_noise(model) 
     # print_statistics(model, analyzer)
     # plot_harm(model)
     # plot_hist(model, analyzer)
@@ -246,5 +290,6 @@ if __name__ == "__main__":
     # plot_fourier_window(model, analyzer)
     # plot_fourier_file(model, analyzer, 'pgp_dt0005.dat')
     # plot_add_multiple(model, analyzer)
-    plot_anti_evth(model, processor)
+    # plot_anti_evth(model, processor)
+    plot_another_anti(model, processor)
 
