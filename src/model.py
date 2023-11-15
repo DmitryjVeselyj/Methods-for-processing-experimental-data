@@ -13,7 +13,7 @@ class Model(AbstractHandler, BaseComponent):
         data[N1:N2]+=C
         
 
-    def spikes(self, N, M, R, Rs, generatorType : RandomGeneratorType, data = None):
+    def spikes(self, N, M, R, Rs, generatorType : RandomGeneratorType, data = None, hardcode=1):
         generator = RandomGeneratorFactory().getGenerator(generatorType)
         if data is None:
             data = np.zeros(N)
@@ -21,7 +21,7 @@ class Model(AbstractHandler, BaseComponent):
 
         positive_spikes_len = M // 2
         positive_spikes = np.fromiter(generator.generate(a=R - Rs, b=R + Rs, N=positive_spikes_len), float)
-        negative_spikes = np.fromiter(generator.generate(a=-R - Rs, b=-R + Rs, N=M - positive_spikes_len), float)
+        negative_spikes = np.fromiter(generator.generate(a=-hardcode * R - Rs, b=-hardcode * R + Rs, N=M - positive_spikes_len), float)
         data[positions[0:positive_spikes_len]] = positive_spikes
         data[positions[positive_spikes_len:]] = negative_spikes
 
@@ -61,3 +61,6 @@ class Model(AbstractHandler, BaseComponent):
     
     def multArrays(self, *args):
         return reduce(np.multiply, args)
+    
+    def convolModel(self, x, N, h, M):
+        return [sum(x[i -m] * h[m] for m in range(M) if i -m >= 0 and i - m < N) for i in range(N + M - 1)]# [int(M/2) + 1: N- int(M/2)]

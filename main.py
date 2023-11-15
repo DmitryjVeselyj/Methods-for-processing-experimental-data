@@ -9,6 +9,7 @@ from src.utils.math_functions import FuncType
 from src.utils.fourier_transform import RectangularWindow
 from src.utils.statistics import std, var
 
+
 import numpy as np
 
 def plot_getFuncDatas(model : Model):
@@ -252,7 +253,8 @@ def plot_another_anti(model : Model, processor : Processor):
 
     fig, ax = plt.subplots(4)
     for i, M in enumerate([1, 10, 100, 10000]):
-        data_noise = np.array([np.fromiter(NormalGenerator.generate(b=2, N=1000), float) for _ in range(M)])
+        data_noise = np.array([np.array(model.generate_noise(1000, 30)) for _ in range(M)])
+        # data_noise = np.array([np.fromiter(NormalGenerator.generate(b=2, N=1000), float) for _ in range(M)])
         anti_data_noise = processor.antiNoise(data_noise, len(data_noise[0]), M)
         ax[i].plot(anti_data_noise)
         ax[i].title.set_text(str(M) + ', ' + str(std(anti_data_noise)))
@@ -260,6 +262,18 @@ def plot_another_anti(model : Model, processor : Processor):
     
     # VAR = D( [X1 + X2 + X3 + X4] / N) = 1 / n**2 * n * D(X)
     # STD  = 1/ sqrt(N) * std(D)
+
+
+    # std_arr = []
+    # for M in range(1, 1000, 10):
+    #     data_noise = np.array([np.array(model.generate_noise(1000, 30)) for _ in range(M)])
+    #     # data_noise = np.array([np.fromiter(NormalGenerator.generate(b=2, N=1000), float) for _ in range(M)])
+    #     anti_data_noise = processor.antiNoise(data_noise, len(data_noise[0]), M)
+    #     std_arr.append(std(anti_data_noise))
+
+    # plt.plot(np.arange(1, 1000, 10), std_arr)
+    # plt.title('std зависимость')
+    # plt.show()
     plt.plot([1 / np.sqrt(M) for M in range(1,1000, 10)])
     plt.show()
 
@@ -271,6 +285,28 @@ def plot_another_anti(model : Model, processor : Processor):
     ax[0].plot(data)
     ax[1].plot(processor.antiTrendLinear(data, len(data)))
     plt.show()
+
+def plot_cardio(model : Model, analyzer : Analyzer, processor : Processor):
+    harm = model.getFuncData(FuncType.POLY_HARM, ai=(1, ), fi =(7, ), dt=0.005, N = 1000)
+    exp_low = model.getFuncData(FuncType.EXPONENTIAL, a=30*0.005, b=1, dt=0.005)
+    h = model.multArrays(harm, exp_low)
+    h = h / max(h) * 120
+    x = np.zeros(1000)
+    x[(range(200, 1000, 200))] = np.array([ np.random.random() * (0.2) + 0.9 for _ in range(4)])
+    fig, ax = plt.subplots(3)
+    ax[0].plot(h)
+    ax[1].plot(x)
+    ax[2].plot(model.convolModel(x, len(x), h, 200))
+    plt.show()
+
+    x = model.spikes(1000, 4, 1, 0.1, RandomGeneratorType.CUSTOM_GENERATOR)
+    fig, ax = plt.subplots(3)
+    ax[0].plot(h)
+    ax[1].plot(x)
+    ax[2].plot(model.convolModel(x, len(x), h, 200))
+    plt.show()
+    
+
 
 if __name__ == "__main__":
     model = Model()
@@ -291,5 +327,6 @@ if __name__ == "__main__":
     # plot_fourier_file(model, analyzer, 'pgp_dt0005.dat')
     # plot_add_multiple(model, analyzer)
     # plot_anti_evth(model, processor)
-    plot_another_anti(model, processor)
+    # plot_another_anti(model, processor)
+    plot_cardio(model, analyzer, processor)
 
