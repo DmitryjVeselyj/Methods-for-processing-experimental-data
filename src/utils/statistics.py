@@ -45,6 +45,11 @@ def mean_square(data):
 def mean_squared_error(data):
     return math.sqrt(mean_square(data))
 
+def mean_absolute_error(data_tr, data_pred):
+    assert len(data_tr) == len(data_pred)
+
+    return 1/ len(data_tr) * sum(abs(data_tr - data_pred))
+
 
 def covariance(x, y, L=0):
     assert len(x) == len(y)
@@ -52,6 +57,9 @@ def covariance(x, y, L=0):
     y_mean = mean(y)
     N = len(x)
     return 1 / N * sum((x[i] - x_mean)*(y[i + L] - y_mean) for i in range(N - L))
+
+def pearson_coef(x, y):
+    return covariance(x,y)/ (std(x) *std(y))
 
 def autocorrelation(data, L):
     return covariance(data, data, L) / moment(data, 2)

@@ -4,6 +4,7 @@ from src.utils.random_generator import RandomGeneratorType, RandomGeneratorFacto
 from src.utils.math_functions import FuncType, FuncFactory
 from functools import reduce
 import numpy as np
+import yfinance as yf
 
 class Model(AbstractHandler, BaseComponent):
 
@@ -64,3 +65,17 @@ class Model(AbstractHandler, BaseComponent):
     
     def convolModel(self, x, N, h, M):
         return [sum(x[i -m] * h[m] for m in range(M) if i -m >= 0 and i - m < N) for i in range(N + M - 1)]# [int(M/2) + 1: N- int(M/2)]
+
+
+
+
+
+
+#-----------------------------------------------kursovaya----------------------------------------
+
+    def get_stocks_data(self, ticker, period, interval):
+        return yf.Ticker(ticker).history(period=period, interval=interval)
+    
+
+    def ito_process(self, t, a, b, c, d):
+        return a + t * np.exp(b*t) + np.sin(c*t) * np.random.random() * d
