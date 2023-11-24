@@ -76,7 +76,8 @@ class Analyzer(AbstractHandler, BaseComponent):
         plt.plot([1/ (len(amp) * dt) * i for i in range(int(len(amp)/2))], amp[:int(len(amp)/2)])
         plt.show()
 
-
+    def transfer(self, amp):
+        return [x * len(amp) for x in amp]
 
 
 #-----------------------------------------------kursovaya----------------------------------------

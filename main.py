@@ -306,7 +306,53 @@ def plot_cardio(model : Model, analyzer : Analyzer, processor : Processor):
     ax[2].plot(model.convolModel(x, len(x), h, 200))
     plt.show()
     
+def plot_filter_gp(model : Model, analyzer : Analyzer, processor : Processor):
+    fc = 50
+    dt = 0.002
+    m = 64
+    fc1 = 35
+    fc2 = 75
 
+    lpf = processor.reflect_lpf(processor.lpf(fc, dt, m))
+    hpf = processor.hpf(fc, dt, m)
+    bpf = processor.bpf(fc1, fc2, dt, m)
+    bsf = processor.bsf(fc1, fc2, dt, m)
+
+    fig, ax = plt.subplots(4)
+    ax[0].plot(lpf)
+    ax[0].set_title('lpf')
+
+    ax[1].plot(hpf)
+    ax[1].set_title('hpf')
+
+    ax[2].plot(bpf)
+    ax[2].set_title('bpf')
+
+    ax[3].plot(bsf)
+    ax[3].set_title('bsf')
+
+    plt.show()
+
+    lpf_amp = analyzer.transfer(analyzer.fourier(lpf, len(lpf))[2])
+    hpf_amp = analyzer.transfer(analyzer.fourier(hpf, len(hpf))[2])
+    bpf_amp = analyzer.transfer(analyzer.fourier(bpf, len(bpf))[2])
+    bsf_amp = analyzer.transfer(analyzer.fourier(bsf, len(bsf))[2])
+
+    fig, ax = plt.subplots(4)
+    ax[0].plot([1/ (len(lpf_amp) * dt) * i for i in range(int(len(lpf_amp)/2))], lpf_amp[:int(len(lpf_amp)/2)])
+    ax[0].set_title('lpf')
+
+    ax[1].plot([1/ (len(hpf_amp) * dt) * i for i in range(int(len(hpf_amp)/2))], hpf_amp[:int(len(hpf_amp)/2)])
+    ax[1].set_title('hpf')
+
+    ax[2].plot([1/ (len(bpf_amp) * dt) * i for i in range(int(len(bpf_amp)/2))], bpf_amp[:int(len(bpf_amp)/2)])
+    ax[2].set_title('bpf')
+
+    ax[3].plot([1/ (len(bsf_amp) * dt) * i for i in range(int(len(bsf_amp)/2))], bsf_amp[:int(len(bsf_amp)/2)])
+    ax[3].set_title('bsf')
+
+    plt.show()
+    
 
 if __name__ == "__main__":
     model = Model()
@@ -328,5 +374,6 @@ if __name__ == "__main__":
     # plot_add_multiple(model, analyzer)
     # plot_anti_evth(model, processor)
     # plot_another_anti(model, processor)
-    plot_cardio(model, analyzer, processor)
+    # plot_cardio(model, analyzer, processor)
+    plot_filter_gp(model, analyzer, processor)
 

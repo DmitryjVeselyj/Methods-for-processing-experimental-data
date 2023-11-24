@@ -29,3 +29,49 @@ class Processor(AbstractHandler, BaseComponent):
 
     def handle(self, data):
         pass
+
+    def lpf(self, fc, dt, m):
+        d = [0.35577019, 0.2436983, 0.07211497, 0.00630165]
+        # rectangular part weights
+        fact = 2 * fc * dt
+        lpw = [fact]
+        arg = fact * np.pi
+        for i in range(1, m + 1):
+            lpw.append(np.sin(arg * i) / (np.pi * i))
+        # trapezoid smoothing at the end
+        lpw[m] = lpw[m] / 2
+        # P310 smoothing window
+        sumg = lpw[0]
+        for i in range(1, m + 1):
+            sum = d[0]
+            arg = np.pi * i / m
+            for k in range(1, 4):
+                sum += 2 * d[k] * np.cos(arg * k)
+            lpw[i] = lpw[i] * sum
+            sumg += 2 * lpw[i]
+        for i in range(m + 1):
+            lpw[i] = lpw[i] / sumg
+        return lpw
+    
+
+    def reflect_lpf(self, lpw):
+        reflection = [lpw[i] for i in range(len(lpw) - 1, 0, -1)]
+        reflection.extend(lpw)
+        return reflection
+
+    def hpf(self, fc, dt, m):
+        lpw = self.reflect_lpf(self.lpf(fc, dt, m))
+        hpw = [-lpw[k] for k in range(m)] + [1 - lpw[m]] + [-lpw[k] for k in range(m+1, 2 *m + 1)]
+        return hpw
+
+    def bpf(self, fc1, fc2, dt, m):
+        lpw1 = self.reflect_lpf(self.lpf(fc1, dt, m))
+        lpw2 = self.reflect_lpf(self.lpf(fc2, dt, m))
+        bpw = [lpw2[k] - lpw1[k] for k in range(2 *m + 1)]
+        return bpw
+
+    def bsf(self, fc1, fc2, dt, m):
+        lpw1 = self.reflect_lpf(self.lpf(fc1, dt, m))
+        lpw2 = self.reflect_lpf(self.lpf(fc2, dt, m))
+        bsw = [lpw1[k] - lpw2[k] for k in range(m)] + [1 + lpw1[m] - lpw2[m]] + [lpw1[k] - lpw2[k] for k in range(m+1, 2 *m + 1)]
+        return bsw
