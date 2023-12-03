@@ -352,12 +352,82 @@ def plot_filter_gp(model : Model, analyzer : Analyzer, processor : Processor):
     ax[3].set_title('bsf')
 
     plt.show()
-    
+
+def _plot_smt_filter(analyzer, data, data_spectr, filt_freq, conv, conv_filt, flt_name):
+    fig, ax = plt.subplots(5)
+    dt = 0.002
+
+    ax[0].plot(data)
+    # ax[0].set_title('data')
+
+    ax[1].plot(*analyzer.spectre_f(data_spectr, dt))
+    # ax[1].set_title('data spectre')
+
+    ax[2].plot(*analyzer.spectre_f(filt_freq, dt))
+    # ax[2].set_title('lpf')
+
+    ax[3].plot(conv)
+    # ax[3].plot('conv')
+
+    ax[4].plot(*analyzer.spectre_f(conv_filt, dt))
+    # ax[4].plot('conv spectre')
+
+    plt.show()
+
+def plot_filter_dat(model : Model, analyzer : Analyzer, processor : Processor, fname):
+    fc1 = 5
+    fc2 = 40
+    dt = 0.005
+    m = 64
+    data = np.fromfile('./data/' + fname, dtype=np.float32)
+    data_spectr = analyzer.fourier(data, len(data))[2]
+
+
+    lpf = processor.reflect_lpf(processor.lpf(5, dt, m))
+    hpf = processor.hpf(50, dt, m)
+    bpf = processor.bpf(fc1, fc2, dt, m)
+    bsf = processor.bsf(fc1, fc2, dt, m)
+
+    lpf_amp = analyzer.transfer(analyzer.fourier(lpf, len(lpf))[2])
+    hpf_amp = analyzer.transfer(analyzer.fourier(hpf, len(hpf))[2])
+    bpf_amp = analyzer.transfer(analyzer.fourier(bpf, len(bpf))[2])
+    bsf_amp = analyzer.transfer(analyzer.fourier(bsf, len(bsf))[2])
+
+    convol_lpf = model.convolModel(data, len(data), lpf, 2*m+1)
+    convol_hpf = model.convolModel(data, len(data), hpf, 2*m+1)
+    convol_bpf = model.convolModel(data, len(data), bpf, 2*m+1)
+    convol_bsf = model.convolModel(data, len(data), bsf, 2*m+1)
+
+
+    convol_lpf_amp = analyzer.fourier(convol_lpf, len(convol_lpf))[2]
+    convol_hpf_amp = analyzer.fourier(convol_hpf, len(convol_hpf))[2]
+    convol_bpf_amp = analyzer.fourier(convol_bpf, len(convol_bpf))[2]
+    convol_bsf_amp = analyzer.fourier(convol_bsf, len(convol_bsf))[2]
+
+    _plot_smt_filter(analyzer, data, data_spectr, lpf_amp, convol_lpf, convol_lpf_amp, 'lpf')
+
+    _plot_smt_filter(analyzer, data, data_spectr, hpf_amp, convol_hpf, convol_hpf_amp, 'hpf')
+
+    _plot_smt_filter(analyzer, data, data_spectr, bpf_amp, convol_bpf, convol_bpf_amp, 'bpf')
+
+    _plot_smt_filter(analyzer, data, data_spectr, bsf_amp, convol_bsf, convol_bsf_amp, 'bsf')
+
+def play_wav(inout : InOuter , filename):
+    data = inout.read_wav('data/' + filename)
+    print(data)
+
+    inout.write_wav('data/' + filename.rstrip('.wav') + '_louder.wav', data['data'] * 1.5, data['rate'])
+
+    plt.plot(data['data'], c='tab:blue')
+    plt.show()
+
+
 
 if __name__ == "__main__":
     model = Model()
     analyzer = Analyzer()
     processor = Processor()
+    inout = InOuter()
     # plot_getFuncDatas(model)
     # plot_picewice(model)
     # plot_shift(model)
@@ -375,5 +445,7 @@ if __name__ == "__main__":
     # plot_anti_evth(model, processor)
     # plot_another_anti(model, processor)
     # plot_cardio(model, analyzer, processor)
-    plot_filter_gp(model, analyzer, processor)
+    # plot_filter_gp(model, analyzer, processor)
+    plot_filter_dat(model, analyzer, processor, 'pgp_dt0005.dat')
+    # play_wav(inout, 'surf.wav')
 

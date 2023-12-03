@@ -71,11 +71,14 @@ class Analyzer(AbstractHandler, BaseComponent):
             amp[n] = calc_ampliture(re[n], im[n])
 
         return re, im, amp
-
+    
     def spectr_fourier(self, amp, dt):
         plt.plot([1/ (len(amp) * dt) * i for i in range(int(len(amp)/2))], amp[:int(len(amp)/2)])
         plt.show()
 
+    def spectre_f(self, amp, dt):
+        return [1/ (len(amp) * dt) * i for i in range(int(len(amp)/2))], amp[:int(len(amp)/2)]
+    
     def transfer(self, amp):
         return [x * len(amp) for x in amp]
 

@@ -64,7 +64,8 @@ class Model(AbstractHandler, BaseComponent):
         return reduce(np.multiply, args)
     
     def convolModel(self, x, N, h, M):
-        return [sum(x[i -m] * h[m] for m in range(M) if i -m >= 0 and i - m < N) for i in range(N + M - 1)]# [int(M/2) + 1: N- int(M/2)]
+        # return [sum(x[i -m] * h[m] for m in range(M) if i -m >= 0 and i - m < N) for i in range(N + M - 1)]# [int(M/2) + 1: N- int(M/2)]
+        return [sum(x[i -m] * h[m] for m in range(M)) for i in range(N)]
 
 
 
