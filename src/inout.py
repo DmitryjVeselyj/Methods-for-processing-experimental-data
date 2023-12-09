@@ -13,7 +13,7 @@ class InOuter(AbstractHandler, BaseComponent):
 
     def read_wav(self, file_name):
         samplerate, data = wavfile.read(file_name)
-        return {'rate': samplerate, 'data': data}
+        return {'rate': samplerate, 'data': data, 'N' : len(data)}
 
     def write_wav(self, file_name, data, rate):
         sf.write(file_name, data, rate)

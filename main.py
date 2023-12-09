@@ -416,12 +416,23 @@ def play_wav(inout : InOuter , filename):
     data = inout.read_wav('data/' + filename)
     print(data)
 
-    inout.write_wav('data/' + filename.rstrip('.wav') + '_louder.wav', data['data'] * 1.5, data['rate'])
+    inout.write_wav('data/' + filename.rstrip('.wav') + '_louder.wav', np.array(data['data'] * 1.5, dtype=np.int16), data['rate'])
 
     plt.plot(data['data'], c='tab:blue')
     plt.show()
 
+    plt.plot(data['data'] * 1.5, c='tab:blue')
+    plt.show()
 
+def play_wav_emphasis(model : Model, analyzer, processor : Processor, inout : InOuter , filename):
+    data = inout.read_wav('data/' + filename)
+    plt.plot(data['data'], c='tab:blue')
+    plt.show()
+
+    data_emp = model.multArrays(data['data'], processor.rw(0.5, 2000,10000, 4, 11500, 15000, data['N']))
+    inout.write_wav('data/' + filename.rstrip('.wav') + '_emp.wav', np.array(data_emp, dtype=np.int16), data['rate'])
+    plt.plot(data_emp, c='tab:blue')
+    plt.show()
 
 if __name__ == "__main__":
     model = Model()
@@ -446,6 +457,6 @@ if __name__ == "__main__":
     # plot_another_anti(model, processor)
     # plot_cardio(model, analyzer, processor)
     # plot_filter_gp(model, analyzer, processor)
-    plot_filter_dat(model, analyzer, processor, 'pgp_dt0005.dat')
+    # plot_filter_dat(model, analyzer, processor, 'pgp_dt0005.dat')
     # play_wav(inout, 'surf.wav')
-
+    play_wav_emphasis(model, analyzer, processor, inout, 'word.wav')

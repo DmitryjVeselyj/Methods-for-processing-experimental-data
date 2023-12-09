@@ -75,3 +75,7 @@ class Processor(AbstractHandler, BaseComponent):
         lpw2 = self.reflect_lpf(self.lpf(fc2, dt, m))
         bsw = [lpw1[k] - lpw2[k] for k in range(m)] + [1 + lpw1[m] - lpw2[m]] + [lpw1[k] - lpw2[k] for k in range(m+1, 2 *m + 1)]
         return bsw
+    
+    def rw(self, c1, n1, n2, c2, n3, n4, N):
+        return [1] * n1 + (n2 - n1) * [c1] + [1] * (n3 - n2) +\
+               [c2] * (n4-n3) + [1] *  (N - n4)
