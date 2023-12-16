@@ -434,6 +434,75 @@ def play_wav_emphasis(model : Model, analyzer, processor : Processor, inout : In
     plt.plot(data_emp, c='tab:blue')
     plt.show()
 
+
+def wav_phono(model : Model, analyzer, processor : Processor, inout : InOuter , filename):
+    data = inout.read_wav('data/' + filename)
+    rate = data['rate']
+    first = data['data'][2000:10000]
+    second = data['data'][11500:15000]
+    dt = 1/rate
+
+    plt.plot(data['data'], c='tab:blue')
+    plt.show()
+
+    plt.plot(first, c='tab:blue')
+    plt.show()
+
+    plt.plot(second, c='tab:blue')
+    plt.show()
+    
+
+    full_word_amp = analyzer.fourier(data['data'], len(data['data']))[2]
+    plt.plot(*analyzer.spectre_f(full_word_amp, dt), c='tab:blue')
+    plt.show()
+
+    first_amp = analyzer.fourier(first, len(first))[2]
+    plt.plot(*analyzer.spectre_f(first_amp, dt), c='tab:blue')
+    plt.show()
+
+    second_amp = analyzer.fourier(second, len(second))[2]
+    plt.plot(*analyzer.spectre_f(second_amp, dt), c='tab:blue')
+    plt.show()
+
+
+
+
+
+    m = 254
+
+    lpf_1 = processor.reflect_lpf(processor.lpf(500, dt, m))
+    bpf_2 = processor.bpf(700, 1400, dt, m)
+    bpf_3 = processor.bpf(2000, 2600, dt, m)
+    hpf_4 = processor.hpf(3000, dt, m)
+
+    convol_lpf_1 = model.convolModel(data, len(data), lpf_1, 2*m+1)
+    convol_hpf_4 = model.convolModel(data, len(data), hpf_4, 2*m+1)
+    convol_bpf_2 = model.convolModel(data, len(data), bpf_2, 2*m+1)
+    convol_bpf_3 = model.convolModel(data, len(data), bpf_3, 2*m+1)
+
+
+    convol_lpf_amp_1 = analyzer.fourier(convol_lpf_1, len(convol_lpf_1))[2]
+    convol_hpf_amp_4 = analyzer.fourier(convol_hpf_4, len(convol_hpf_4))[2]
+    convol_bpf_amp_2 = analyzer.fourier(convol_bpf_2, len(convol_bpf_2))[2]
+    convol_bpf_amp_3 = analyzer.fourier(convol_bpf_3, len(convol_bpf_3))[2]
+
+
+    
+    plt.plot(*analyzer.spectre_f(convol_lpf_amp_1, dt), c='tab:blue')
+    plt.show()
+
+    plt.plot(*analyzer.spectre_f(convol_hpf_amp_4, dt), c='tab:blue')
+    plt.show()
+
+    plt.plot(*analyzer.spectre_f(convol_bpf_amp_2, dt), c='tab:blue')
+    plt.show()
+
+    plt.plot(*analyzer.spectre_f(convol_bpf_amp_3, dt), c='tab:blue')
+    plt.show()
+
+
+    
+
 if __name__ == "__main__":
     model = Model()
     analyzer = Analyzer()
@@ -460,3 +529,4 @@ if __name__ == "__main__":
     # plot_filter_dat(model, analyzer, processor, 'pgp_dt0005.dat')
     # play_wav(inout, 'surf.wav')
     play_wav_emphasis(model, analyzer, processor, inout, 'word.wav')
+    # wav_phono(model, analyzer, processor, inout, 'word.wav')
