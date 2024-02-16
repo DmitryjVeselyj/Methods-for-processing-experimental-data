@@ -1,31 +1,30 @@
-from src.handler import AbstractHandler
-from src.mediator import BaseComponent
 import src.utils.statistics as stat
 import numpy as np
 
-class Processor(AbstractHandler, BaseComponent):
+
+class Processor:
     def antiShift(self, data):
         return data - stat.mean(data)
-    
+
     def antiSpike(self, data, N, R):
         outdata = np.zeros(N)
-        for i in range(1, N-1):
+        for i in range(1, N - 1):
             if abs(data[i]) > R:
-                outdata[i] = (data[i-1] + data[i+1]) / 2
+                outdata[i] = (data[i - 1] + data[i + 1]) / 2
             else:
-                outdata[i] = data[i]    
+                outdata[i] = data[i]
         outdata[0] = data[0]
-        outdata[N-1] = data[N-1]
+        outdata[N - 1] = data[N - 1]
         return outdata
 
     def antiTrendLinear(self, data, N):
-        return [data[i+1] - data[i] for i in range(N - 1)]
-    
+        return [data[i + 1] - data[i] for i in range(N - 1)]
+
     def antiTrendNonLinear(self, data, N, W):
-        return [1 / W * sum(data[n:n+W]) for n in range(N - W)]
+        return [1 / W * sum(data[n:n + W]) for n in range(N - W)]
 
     def antiNoise(self, data: list, N, M):
-        return [1 / M * sum(data[:, i] )for i in range(N)]
+        return [1 / M * sum(data[:, i]) for i in range(N)]
 
     def handle(self, data):
         pass
@@ -52,7 +51,6 @@ class Processor(AbstractHandler, BaseComponent):
         for i in range(m + 1):
             lpw[i] = lpw[i] / sumg
         return lpw
-    
 
     def reflect_lpf(self, lpw):
         reflection = [lpw[i] for i in range(len(lpw) - 1, 0, -1)]
@@ -61,21 +59,22 @@ class Processor(AbstractHandler, BaseComponent):
 
     def hpf(self, fc, dt, m):
         lpw = self.reflect_lpf(self.lpf(fc, dt, m))
-        hpw = [-lpw[k] for k in range(m)] + [1 - lpw[m]] + [-lpw[k] for k in range(m+1, 2 *m + 1)]
+        hpw = [-lpw[k] for k in range(m)] + [1 - lpw[m]] + [-lpw[k] for k in range(m + 1, 2 * m + 1)]
         return hpw
 
     def bpf(self, fc1, fc2, dt, m):
         lpw1 = self.reflect_lpf(self.lpf(fc1, dt, m))
         lpw2 = self.reflect_lpf(self.lpf(fc2, dt, m))
-        bpw = [lpw2[k] - lpw1[k] for k in range(2 *m + 1)]
+        bpw = [lpw2[k] - lpw1[k] for k in range(2 * m + 1)]
         return bpw
 
     def bsf(self, fc1, fc2, dt, m):
         lpw1 = self.reflect_lpf(self.lpf(fc1, dt, m))
         lpw2 = self.reflect_lpf(self.lpf(fc2, dt, m))
-        bsw = [lpw1[k] - lpw2[k] for k in range(m)] + [1 + lpw1[m] - lpw2[m]] + [lpw1[k] - lpw2[k] for k in range(m+1, 2 *m + 1)]
+        bsw = [lpw1[k] - lpw2[k] for k in range(m)] + [1 + lpw1[m] - lpw2[m]] + [lpw1[k] - lpw2[k] for k in
+                                                                                 range(m + 1, 2 * m + 1)]
         return bsw
-    
+
     def rw(self, c1, n1, n2, c2, n3, n4, N):
-        return [1] * n1 + (n2 - n1) * [c1] + [1] * (n3 - n2) +\
-               [c2] * (n4-n3) + [1] *  (N - n4)
+        return [1] * n1 + (n2 - n1) * [c1] + [1] * (n3 - n2) + \
+            [c2] * (n4 - n3) + [1] * (N - n4)

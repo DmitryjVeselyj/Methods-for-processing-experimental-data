@@ -7,7 +7,7 @@
 .vscode/
 # Local History for Visual Studio Code
 .history/
-
+.idea/
 # Built Visual Studio Code Extensions
 *.vsix
 

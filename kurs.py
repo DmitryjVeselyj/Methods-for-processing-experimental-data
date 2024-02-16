@@ -8,6 +8,7 @@ import scipy.optimize as opt
 from src.utils.statistics import mean_absolute_error
 import sklearn.metrics as m
 from src.utils.statistics import pearson_coef
+
 # np.random.seed(452) # 123 654
 model = Model()
 analyzer = Analyzer()
@@ -24,10 +25,9 @@ def analyze_data(data):
     plt.plot(data)
     plt.title('tesla')
     plt.show()
-   
+
     stats = analyzer.statistics(data)
     print(stats)
-
 
     L = range(len(data))
     values = [analyzer.acf(data, len(data), l, calc_cov=False) for l in L]
@@ -45,14 +45,13 @@ aapl = model.get_stocks_data('aapl', '2y', '1d')
 aapl = np.array(aapl['Close'])
 # aapl = np.array(processor.antiTrendNonLinear(aapl['Close'], len(aapl['Close']), 55))
 
-tsla = model.get_stocks_data('tsla', '2y', '1d') 
+tsla = model.get_stocks_data('tsla', '2y', '1d')
 tsla = np.array(tsla['Close'])
 # tsla = np.array(processor.antiTrendNonLinear(tsla['Close'], len(tsla['Close']), 55))
 
 amzn = model.get_stocks_data('amzn', '2y', '1d')
 # amzn = np.array(processor.antiTrendNonLinear(amzn['Close'], len(amzn['Close']), 55))
 amzn = np.array(amzn['Close'])
-
 
 # analyze_data(aapl)
 analyze_data(tsla)
@@ -66,7 +65,7 @@ analyze_data(tsla)
 #         a,b,c,d = args
 #         data_pred = np.array([model.ito_process(t, a, b, c, d) for t in range(len(data_tr))])
 #         return mean_absolute_error(data_tr, data_pred)
-    
+
 
 #     bounds = ((-10000, 10000), (-100, 1),(0, 2 * np.pi),(0, 100))
 
