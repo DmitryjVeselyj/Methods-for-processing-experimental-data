@@ -37,3 +37,12 @@ class InOuter:
 
     def cast_to_interval(self, data, interval_value):
         return (data - np.min(data)) / (np.max(data) - np.min(data)) * interval_value
+
+    def resize_image(self, img, scale, method):
+        methods = {'nearest': cv2.INTER_NEAREST,
+                   'bilinear': cv2.INTER_LINEAR}
+
+        interpolation = methods[method]
+        resized_image = cv2.resize(img, None, fx=scale, fy=scale, interpolation=interpolation)
+
+        return resized_image

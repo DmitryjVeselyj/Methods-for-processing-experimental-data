@@ -38,8 +38,7 @@ class ExponentialFunc(AbsctractFunc):
             yield cls._exponential_func(a, b, t)
 
 
-
-# looks like poly harm 
+# looks like poly harm
 # class HarmFunc(AbsctractFunc):
 #     @classmethod
 #     def _harm_func(cls, a, f0, dt, t):
@@ -57,14 +56,14 @@ class PolyHarmFunc(AbsctractFunc):
         return a * np.sin(2 * np.pi * f0 * dt * t)
 
     @classmethod
-    def _poly_harm_func(cls, ai : tuple, fi : tuple, dt, t):
+    def _poly_harm_func(cls, ai: tuple, fi: tuple, dt, t):
         return sum(cls._harm_func(a, f0, dt, t) for a, f0 in zip(ai, fi))
 
-
     @classmethod
-    def calculate(cls, ai : tuple, fi : tuple, dt, N = 1000, delta = 1, *args, **kwargs):
+    def calculate(cls, ai: tuple, fi: tuple, dt, N=1000, delta=1, *args, **kwargs):
         for t in np.arange(0, N, delta):
             yield cls._poly_harm_func(ai, fi, dt, t)
+
 
 class FuncFactory:
     def getFunc(self, func_type: FuncType):
