@@ -78,3 +78,13 @@ class Processor:
     def rw(self, c1, n1, n2, c2, n3, n4, N):
         return [1] * n1 + (n2 - n1) * [c1] + [1] * (n3 - n2) + \
             [c2] * (n4 - n3) + [1] * (N - n4)
+
+    def negative(self, image_data):
+        max_pixel_value = np.max(image_data)
+        return np.vectorize(lambda x: max_pixel_value - x)(image_data)
+
+    def gamma_correction(self, image_data, const, gamma):
+        return np.vectorize(lambda x: const * x ** gamma)(image_data)
+
+    def log_correction(self, image_data, const):
+        return np.vectorize(lambda x: const * np.log(x + 1))(image_data)
