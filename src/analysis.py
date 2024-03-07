@@ -74,4 +74,5 @@ class Analyzer:
     def transfer(self, amp):
         return [x * len(amp) for x in amp]
 
+
 # -----------------------------------------------kursovaya----------------------------------------

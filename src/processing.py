@@ -1,5 +1,7 @@
 import src.utils.statistics as stat
 import numpy as np
+import cv2
+from src.utils.image_processing import calc_hist, calc_cdf
 
 
 class Processor:
@@ -88,3 +90,32 @@ class Processor:
 
     def log_correction(self, image_data, const):
         return np.vectorize(lambda x: const * np.log(x + 1))(image_data)
+
+    def eqval_hist_correction(self, image_data):
+        max_pixel_value = np.max(image_data)
+        hist = calc_hist(image_data)
+        cdf = calc_cdf(hist)
+        return np.vectorize(lambda x: round(max_pixel_value * cdf[x]))(image_data)
+
+    def custom_hist_correction(self, image_data, custom_hist):
+        max_pixel_value = np.max(image_data)
+        native_hist = calc_hist(image_data)
+        
+        cdf_native = calc_cdf(native_hist)
+        cdf_custom_hist = calc_cdf(custom_hist)
+        
+        sk = (max_pixel_value * cdf_native).round()
+        gk = (max_pixel_value * cdf_custom_hist).round()
+
+        map_pixel_rules = {}
+        for s in sk:
+            map_pixel_rules[s] = (np.abs(gk - s)).argmin()
+
+        equal_hist_image = np.clip(np.vectorize(lambda x: round(max_pixel_value * cdf_native[x]))(image_data), 0, 255)
+        for x in range(equal_hist_image.shape[0]):
+            for y in range(equal_hist_image.shape[1]):
+                map_rule = map_pixel_rules.get(equal_hist_image[x, y], None)
+                if map_rule is not None:
+                    equal_hist_image[x, y] = map_rule
+
+        return equal_hist_image

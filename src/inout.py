@@ -15,10 +15,10 @@ class InOuter:
         sf.write(file_name, data, rate)
 
     def read_jpg(self, file_name):
-        img = cv2.imread(file_name)
+        img = cv2.imread(file_name, cv2.IMREAD_GRAYSCALE)
         return np.array(img, dtype=np.int32)
 
-    def show_jpg(self, img, cmap=None):
+    def show_jpg(self, img, cmap='gray'):
         plt.imshow(img, cmap)
 
     def write_jpg(self, data, file_name):
@@ -38,11 +38,11 @@ class InOuter:
     def cast_to_interval(self, data, interval_value):
         return (data - np.min(data)) / (np.max(data) - np.min(data)) * interval_value
 
-    def resize_image(self, img, scale, method):
+    def resize_image(self, img, scale_x, scale_y, method):
         methods = {'nearest': cv2.INTER_NEAREST,
                    'bilinear': cv2.INTER_LINEAR}
 
         interpolation = methods[method]
-        resized_image = cv2.resize(img, None, fx=scale, fy=scale, interpolation=interpolation)
+        resized_image = cv2.resize(img, None, fx=scale_x, fy=scale_y, interpolation=interpolation)
 
         return resized_image
