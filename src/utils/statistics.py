@@ -72,8 +72,8 @@ def covariance(x, y, L=0):
     return 1 / N * sum((x[i] - x_mean) * (y[i + L] - y_mean) for i in range(N - L))
 
 
-def pearson_coef(x, y):
-    return covariance(x, y) / (std(x) * std(y))
+def pearson_coef(x, y, L=0):
+    return covariance(x, y, L=0) / (std(x) * std(y))
 
 
 def autocorrelation(data, L):

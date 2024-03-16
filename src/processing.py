@@ -100,10 +100,10 @@ class Processor:
     def custom_hist_correction(self, image_data, custom_hist):
         max_pixel_value = np.max(image_data)
         native_hist = calc_hist(image_data)
-        
+
         cdf_native = calc_cdf(native_hist)
         cdf_custom_hist = calc_cdf(custom_hist)
-        
+
         sk = (max_pixel_value * cdf_native).round()
         gk = (max_pixel_value * cdf_custom_hist).round()
 

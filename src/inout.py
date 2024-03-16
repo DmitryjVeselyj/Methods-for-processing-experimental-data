@@ -24,10 +24,10 @@ class InOuter:
     def write_jpg(self, data, file_name):
         cv2.imwrite(file_name, data)
 
-    def read_xcr(self, file_name):
+    def read_xcr(self, file_name, width=1024, height=1024):
         binary_data = np.fromfile(file_name, dtype=np.uint8)
-        xcr_data = binary_data[2048:2048 + 1024 * 1024 * 2]
-        xcr_data_img = np.array(list(zip(xcr_data[1::2], xcr_data[::2]))).view(np.uint16).reshape(1024, 1024)
+        xcr_data = binary_data[2048:2048 + width * height * 2]
+        xcr_data_img = np.array(list(zip(xcr_data[1::2], xcr_data[::2]))).view(np.uint16).reshape(width, height)
 
         return self.cast_to_interval(xcr_data_img, 255)
 
