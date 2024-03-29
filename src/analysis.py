@@ -64,6 +64,17 @@ class Analyzer:
 
         return re, im, amp
 
+    def inverseFourier(self, re, im, N):
+        complex_spectr = np.array(re) + np.array(im)
+        inv_re = np.zeros(N)
+        inv_im = np.zeros(N)
+
+        for n in range(N):
+            inv_re[n] = sum(complex_spectr[k] * np.cos(2 * np.pi * n * k / N) for k in range(N))
+            inv_im[n] = sum(complex_spectr[k] * np.sin(2 * np.pi * n * k / N) for k in range(N))
+
+        return inv_re + inv_im
+
     def spectr_fourier(self, amp, dt):
         plt.plot([1 / (len(amp) * dt) * i for i in range(int(len(amp) / 2))], amp[:int(len(amp) / 2)])
         plt.show()
