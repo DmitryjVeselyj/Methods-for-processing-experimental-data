@@ -27,7 +27,7 @@ def calc_cdf(histogram):
     return cdf
 
 
-def image_diff(img1, img2, method):
+def image_diff(img1, img2, method = 'bilinear'):
     methods = {'nearest': cv2.INTER_NEAREST,
                'bilinear': cv2.INTER_LINEAR}
 
